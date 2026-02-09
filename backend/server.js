@@ -1,5 +1,7 @@
 import express from "express";
 import dotenv from "dotenv";
+import cookieParser from "cookie-parser"; // 1. ייבוא של cookie-parser
+
 import authRoutes from "./routes/auth.routes.js";
 import connectMongoDB from "./db/connectMongoDB.js";
 
@@ -8,10 +10,12 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-console.log("MONGO_URI:", process.env.MONGO_URI);
+// Middleware
+app.use(express.json()); 
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser()); // 2. שימוש ב-cookieParser (חובה לפני ה-routes)
 
-app.use(express.json()); // Middleware to parse JSON bodies
-app.use(express.urlencoded({ extended: true })); // Middleware to parse URL-encoded bodies
+// Routes
 app.use("/api/auth", authRoutes);
 
 app.listen(PORT, () => {
