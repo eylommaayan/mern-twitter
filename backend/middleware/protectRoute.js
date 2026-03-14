@@ -3,12 +3,16 @@ import jwt from "jsonwebtoken";
 
 export const protectRoute = async (req, res, next) => {
     try {
-        // ניסיון לחלץ את הטוקן מהעוגיות (Cookies)
-        const token = req.cookies.jwt;
+        // ניסיון לחלץ את הטוקן מהעוגיות (Cookies) או מה־Authorization header
+        let token = req.cookies?.jwt;
+        if (!token && req.headers.authorization?.startsWith("Bearer ")) {
+            token = req.headers.authorization.split(" ")[1];
+        }
         
         if (!token) {
             return res.status(401).json({ error: "לא מורשה: לא סופק טוקן אימות" });
         }
+        console.log("token-cookie", req.cookies?.jwt, "authorization", req.headers.authorization);
 
         // אימות הטוקן מול המפתח הסודי
         const decoded = jwt.verify(token, process.env.JWT_SECRET);

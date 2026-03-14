@@ -26,10 +26,10 @@ export const followUnfollowUser = async (req, res) => {
 		const currentUser = await User.findById(req.user._id);
 
 		if (id === req.user._id.toString()) {
-			return res.status(400).json({ error: "You can't follow/unfollow yourself" });
+			return res.status(400).json({ error: "אתה לא יכול לעקוב אחרי עצמך" });
 		}
 
-		if (!userToModify || !currentUser) return res.status(400).json({ error: "User not found" });
+		if (!userToModify || !currentUser) return res.status(400).json({ error: "משתמש לא נמצא" });
 
 		const isFollowing = currentUser.following.includes(id);
 
@@ -38,7 +38,7 @@ export const followUnfollowUser = async (req, res) => {
 			await User.findByIdAndUpdate(id, { $pull: { followers: req.user._id } });
 			await User.findByIdAndUpdate(req.user._id, { $pull: { following: id } });
 
-			res.status(200).json({ message: "User unfollowed successfully" });
+			res.status(200).json({ message: "המשתמש לא במעקב" });
 		} else {
 			// Follow the user
 			await User.findByIdAndUpdate(id, { $push: { followers: req.user._id } });
@@ -52,10 +52,10 @@ export const followUnfollowUser = async (req, res) => {
 
 			await newNotification.save();
 
-			res.status(200).json({ message: "User followed successfully" });
+			res.status(200).json({ message: "אתה עוקב אחרי המשתמש" });
 		}
 	} catch (error) {
-		console.log("Error in followUnfollowUser: ", error.message);
+		console.log("שגיאה במעקב אחר משתמשים: ", error.message);
 		res.status(500).json({ error: error.message });
 	}
 };

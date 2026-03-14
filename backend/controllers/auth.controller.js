@@ -62,6 +62,9 @@ export const signup = async (req, res) => {
 // פונקציית התחברות
 export const login = async (req, res) => {
   try {
+       if (!req.body || !req.body.username || !req.body.password) {
+      return res.status(400).json({ error: "יש לספק username ו-password ב-JSON body" });
+    }
     const { username, password } = req.body;
     const user = await User.findOne({ username });
     const isPasswordCorrect = await bcrypt.compare(password, user?.password || "");
