@@ -5,6 +5,10 @@ import bcrypt from "bcryptjs";
 // פונקציית הרשמה
 export const signup = async (req, res) => {
   try {
+    if (!req.body || Object.keys(req.body).length === 0) {
+      return res.status(400).json({ error: "חסר body בבקשה (JSON) עם fullName, username, email, password" });
+    }
+
     const { fullName, username, email, password } = req.body;
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
