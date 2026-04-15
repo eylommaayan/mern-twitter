@@ -2,6 +2,7 @@ import User from "../models/user.model.js";
 import jwt from "jsonwebtoken";
 
 export const protectRoute = async (req, res, next) => {
+    console.log("Headers Authorization:", req.headers.authorization);
     try {
         // ניסיון לחלץ את הטוקן מהעוגיות (Cookies) או מה־Authorization header
         let token = req.cookies?.jwt;
