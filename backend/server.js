@@ -4,7 +4,7 @@ import cookieParser from "cookie-parser"; // 1. ייבוא של cookie-parser
 import { v2 as cloudinary} from "cloudinary";
 import authRoutes from "./routes/auth.routes.js";
 import userRoutes from "./routes/user.routes.js";
-
+import postRoutes from "./routes/post.routes.js";
 import connectMongoDB from "./db/connectMongoDB.js";
 
 dotenv.config();
@@ -26,6 +26,7 @@ app.use(cookieParser()); // 2. שימוש ב-cookieParser (חובה לפני ה-
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/posts", postRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
