@@ -61,14 +61,17 @@ export const deletePost = async (req, res) => {
 };
 
 export const commentOnPost = async (req, res) => {
-	try {
-		const { text } = req.body;
-		const postId = req.params.id;
+    try {
+        const { text } = req.body;
+        // חילוץ בטוח: בודק גם id וגם postId מהכתובת
+        const postId = req.params.id || req.params.postId; 
+
+        if (!text) {
+            return res.status(400).json({ error: "Text field is required" });
+        }
 		const userId = req.user._id;
 
-		if (!text) {
-			return res.status(400).json({ error: "Text field is required" });
-		}
+		
 		const post = await Post.findById(postId);
 
 		if (!post) {
