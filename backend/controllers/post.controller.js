@@ -91,16 +91,16 @@ export const commentOnPost = async (req, res) => {
 };
 
 export const likeUnlikePost = async (req, res) => {
-	try {
-		const userId = req.user._id;
-		const { id: postId } = req.params;
+    try {
+        const userId = req.user._id;
+        // חילוץ בטוח שתומך גם ב-id וגם ב-postId מהנתיב
+        const postId = req.params.id || req.params.postId; 
 
-		const post = await Post.findById(postId);
+        const post = await Post.findById(postId);
 
-		if (!post) {
-			return res.status(404).json({ error: "Post not found" });
-		}
-
+        if (!post) {
+            return res.status(404).json({ error: "Post not found" });
+        }
 		const userLikedPost = post.likes.includes(userId);
 
 		if (userLikedPost) {
