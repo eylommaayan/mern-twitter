@@ -3,7 +3,7 @@ import { BsEmojiSmileFill } from "react-icons/bs";
 import { useRef, useState } from "react";
 import { IoCloseSharp } from "react-icons/io5";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { toast } from "react-hot-toast";
+import toast from "react-hot-toast";
 
 const CreatePost = () => {
 	const [text, setText] = useState("");
@@ -34,7 +34,7 @@ const CreatePost = () => {
 				}
 				return data;
 			} catch (error) {
-				throw new Error(error);
+				throw new Error(error.message);
 			}
 		},
 
@@ -66,12 +66,16 @@ const CreatePost = () => {
 		<div className='flex p-4 items-start gap-4 border-b border-gray-700'>
 			<div className='avatar'>
 				<div className='w-8 rounded-full'>
-					<img src={authUser.profileImg || "/avatar-placeholder.png"} />
+					{/* שימוש באוואטר מתיקיית avatars אם אין תמונת פרופיל */}
+					<img
+						src={authUser?.profileImg || "/avatars/boy1.png"}
+						alt='Profile avatar'
+					/>
 				</div>
 			</div>
 			<form className='flex flex-col gap-2 w-full' onSubmit={handleSubmit}>
 				<textarea
-					className='textarea w-full p-0 text-lg resize-none border-none focus:outline-none  border-gray-800'
+					className='textarea w-full p-0 text-lg resize-none border-none focus:outline-none border-gray-800'
 					placeholder='What is happening?!'
 					value={text}
 					onChange={(e) => setText(e.target.value)}
@@ -107,4 +111,5 @@ const CreatePost = () => {
 		</div>
 	);
 };
+
 export default CreatePost;

@@ -17,10 +17,14 @@ import { formatMemberSinceDate } from "../../utils/date";
 import useFollow from "../../hooks/useFollow";
 import useUpdateUserProfile from "../../hooks/useUpdateUserProfile";
 
+import toast from "react-hot-toast";
+import ImageCropModal from "../../components/common/ImageCropModal";
+
 const ProfilePage = () => {
 	const [coverImg, setCoverImg] = useState(null);
 	const [profileImg, setProfileImg] = useState(null);
 	const [feedType, setFeedType] = useState("posts");
+	const [cropData, setCropData] = useState(null); // { image, type, aspect }
 
 	const coverImgRef = useRef(null);
 	const profileImgRef = useRef(null);
@@ -46,27 +50,39 @@ const ProfilePage = () => {
 				}
 				return data;
 			} catch (error) {
-				throw new Error(error);
+				throw new Error(error.message);
 			}
 		},
 	});
 
 	const { isUpdatingProfile, updateProfile } = useUpdateUserProfile();
 
-	const isMyProfile = authUser._id === user?._id;
+	const isMyProfile = authUser?._id === user?._id;
 	const memberSinceDate = formatMemberSinceDate(user?.createdAt);
-	const amIFollowing = authUser?.following.includes(user?._id);
+	const amIFollowing = authUser?.following?.includes(user?._id);
 
-	const handleImgChange = (e, state) => {
+	const handleImgChange = (e, type) => {
 		const file = e.target.files[0];
-		if (file) {
-			const reader = new FileReader();
-			reader.onload = () => {
-				state === "coverImg" && setCoverImg(reader.result);
-				state === "profileImg" && setProfileImg(reader.result);
-			};
-			reader.readAsDataURL(file);
+		if (!file) return;
+
+		// בדיקת גודל קובץ מקסימלי (3MB)
+		const MAX_SIZE_MB = 3;
+		if (file.size > MAX_SIZE_MB * 1024 * 1024) {
+			toast.error(`הקובץ כבד מדי! הגודל המרבי המותר הוא ${MAX_SIZE_MB}MB.`);
+			e.target.value = null;
+			return;
 		}
+
+		const reader = new FileReader();
+		reader.onload = () => {
+			setCropData({
+				image: reader.result,
+				type,
+				aspect: type === "profileImg" ? 1 : 16 / 9,
+			});
+		};
+		reader.readAsDataURL(file);
+		e.target.value = null;
 	};
 
 	useEffect(() => {
@@ -75,7 +91,7 @@ const ProfilePage = () => {
 
 	return (
 		<>
-			<div className='flex-[4_4_0]  border-r border-gray-700 min-h-screen '>
+			<div className='flex-[4_4_0] border-r border-gray-700 min-h-screen'>
 				{/* HEADER */}
 				{(isLoading || isRefetching) && <ProfileHeaderSkeleton />}
 				{!isLoading && !isRefetching && !user && <p className='text-center text-lg mt-4'>User not found</p>}
@@ -125,14 +141,14 @@ const ProfilePage = () => {
 								<div className='avatar absolute -bottom-16 left-4'>
 									<div className='w-32 rounded-full relative group/avatar'>
 										<img src={profileImg || user?.profileImg || "/avatar-placeholder.png"} />
-										<div className='absolute top-5 right-3 p-1 bg-primary rounded-full group-hover/avatar:opacity-100 opacity-0 cursor-pointer'>
-											{isMyProfile && (
-												<MdEdit
-													className='w-4 h-4 text-white'
-													onClick={() => profileImgRef.current.click()}
-												/>
-											)}
-										</div>
+										{isMyProfile && (
+											<div
+												className='absolute top-5 right-3 p-1 bg-primary rounded-full group-hover/avatar:opacity-100 opacity-0 cursor-pointer'
+												onClick={() => profileImgRef.current.click()}
+											>
+												<MdEdit className='w-4 h-4 text-white' />
+											</div>
+										)}
 									</div>
 								</div>
 							</div>
@@ -171,19 +187,16 @@ const ProfilePage = () => {
 
 								<div className='flex gap-2 flex-wrap'>
 									{user?.link && (
-										<div className='flex gap-1 items-center '>
-											<>
-												<FaLink className='w-3 h-3 text-slate-500' />
-												<a
-													href='https://youtube.com/@asaprogrammer_'
-													target='_blank'
-													rel='noreferrer'
-													className='text-sm text-blue-500 hover:underline'
-												>
-													{/* Updated this after recording the video. I forgot to update this while recording, sorry, thx. */}
-													{user?.link}
-												</a>
-											</>
+										<div className='flex gap-1 items-center'>
+											<FaLink className='w-3 h-3 text-slate-500' />
+											<a
+												href={user.link.startsWith("http") ? user.link : `https://${user.link}`}
+												target='_blank'
+												rel='noreferrer'
+												className='text-sm text-blue-500 hover:underline'
+											>
+												{user?.link}
+											</a>
 										</div>
 									)}
 									<div className='flex gap-2 items-center'>
@@ -218,7 +231,7 @@ const ProfilePage = () => {
 								>
 									Likes
 									{feedType === "likes" && (
-										<div className='absolute bottom-0 w-10  h-1 rounded-full bg-primary' />
+										<div className='absolute bottom-0 w-10 h-1 rounded-full bg-primary' />
 									)}
 								</div>
 							</div>
@@ -228,7 +241,22 @@ const ProfilePage = () => {
 					<Posts feedType={feedType} username={username} userId={user?._id} />
 				</div>
 			</div>
+
+			{/* חלון החיתוך - ממוקם בתוך ה-Fragment של הקומפוננטה */}
+			{cropData && (
+				<ImageCropModal
+					image={cropData.image}
+					aspect={cropData.aspect}
+					onCropComplete={(croppedBase64) => {
+						if (cropData.type === "profileImg") setProfileImg(croppedBase64);
+						if (cropData.type === "coverImg") setCoverImg(croppedBase64);
+						setCropData(null);
+					}}
+					onClose={() => setCropData(null)}
+				/>
+			)}
 		</>
 	);
 };
+
 export default ProfilePage;

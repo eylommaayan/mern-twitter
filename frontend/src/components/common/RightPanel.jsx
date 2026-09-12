@@ -6,6 +6,16 @@ import useFollow from "../../hooks/useFollow";
 import RightPanelSkeleton from "../skeletons/RightPanelSkeleton";
 import LoadingSpinner from "./LoadingSpinner";
 
+// רשימת האוואטרים מתיקיית public/avatars
+const AVATARS = [
+	"/avatars/boy1.png",
+	"/avatars/girl1.png",
+	"/avatars/boy2.png",
+	"/avatars/girl2.png",
+	"/avatars/boy3.png",
+	"/avatars/girl3.png",
+];
+
 const RightPanel = () => {
 	const { data: suggestedUsers, isLoading } = useQuery({
 		queryKey: ["suggestedUsers"],
@@ -42,7 +52,7 @@ const RightPanel = () => {
 						</>
 					)}
 					{!isLoading &&
-						suggestedUsers?.map((user) => (
+						suggestedUsers?.map((user, idx) => (
 							<Link
 								to={`/profile/${user.username}`}
 								className='flex items-center justify-between gap-4'
@@ -51,7 +61,14 @@ const RightPanel = () => {
 								<div className='flex gap-2 items-center'>
 									<div className='avatar'>
 										<div className='w-8 rounded-full'>
-											<img src={user.profileImg || "/avatar-placeholder.png"} />
+											{/* שימוש באוואטר מתוך התיקייה כברירת מחדל */}
+											<img
+												src={
+													user.profileImg ||
+													AVATARS[idx % AVATARS.length]
+												}
+												alt={user.fullName}
+											/>
 										</div>
 									</div>
 									<div className='flex flex-col'>
