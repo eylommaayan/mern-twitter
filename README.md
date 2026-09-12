@@ -2,7 +2,8 @@
 
 <img width="562" height="926" alt="image" src="https://github.com/user-attachments/assets/73ddd610-5af7-4124-a6f8-4ee750a6c878" />
 
-# 🐦 שיבוט X (טוויטר) – MERN Stack & תמיכה ב-RTL
+
+MERN - X Twitter Clone
 
 אפליקציית רשת חברתית Full-Stack בהשראת X (טוויטר), שנבנתה מאפס ב-MERN Stack, מותאמת לסביבת Production, וכוללת לוקליזציה מלאה לעברית ותמיכה בכיווניות מימין לשמאל (RTL).
 
